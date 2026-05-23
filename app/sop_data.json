@@ -1,0 +1,104 @@
+{
+  "business_name": "Bloom Aesthetics Clinic",
+
+  "hours": {
+    "monday_to_saturday": "9:00 AM - 7:00 PM",
+    "sunday": "Closed"
+  },
+
+  "services": {
+    "botox": {
+      "price_from": "£200",
+      "duration": "30 minutes",
+      "description": "Anti-wrinkle Botox treatment"
+    },
+
+    "fillers": {
+      "price_from": "£250",
+      "duration": "45 minutes",
+      "description": "Dermal filler enhancement treatment"
+    },
+
+    "consultation": {
+      "price": "Free",
+      "duration": "20 minutes"
+    },
+
+    "chemical_peel": {
+      "price_from": "£120",
+      "duration": "40 minutes"
+    },
+
+    "laser_hair_removal": {
+      "price_from": "£80",
+      "duration": "30 minutes"
+    },
+
+    "hydrafacial": {
+      "price_from": "£150",
+      "duration": "60 minutes"
+    }
+  },
+
+  "booking": {
+    "methods": [
+      "WhatsApp",
+      "Website",
+      "Phone"
+    ],
+
+    "cancellation_policy":
+      "24-hour notice required",
+
+    "deposit_required":
+      "Required for treatments above £300"
+  },
+
+  "payment_methods": [
+    "Cash",
+    "Credit Card",
+    "Debit Card",
+    "Apple Pay",
+    "Google Pay"
+  ],
+
+  "aftercare": {
+    "botox":
+      "Avoid exercise and alcohol for 24 hours.",
+
+    "fillers":
+      "Avoid touching treated area for 6 hours."
+  },
+
+  "faq": {
+
+    "parking":
+      "Free parking is available behind the clinic.",
+
+    "consultation_required":
+      "A consultation is required before all injectable treatments.",
+
+    "minimum_age":
+      "Customers must be at least 18 years old.",
+
+    "late_policy":
+      "Appointments may be rescheduled if the client is over 15 minutes late."
+  },
+
+  "escalation_rules": [
+
+    "medical question",
+
+    "customer complaint",
+
+    "refund request",
+
+    "pricing negotiation",
+
+    "legal threat",
+
+    "angry customer",
+
+    "more than 2 unanswered questions"
+  ]
+}

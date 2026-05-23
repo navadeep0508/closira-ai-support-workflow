@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta
+        name="viewport"
+        content=
+            "width=device-width,
+             initial-scale=1.0"
+    />
+
+    <title>
+        Closira AI Support
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    />
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="chat-header">
+
+            <div>
+
+                <h1>
+                    Closira AI Support
+                </h1>
+
+                <small id="sessionText">
+                    Session: loading...
+                </small>
+
+            </div>
+
+            <button id="summaryBtn">
+                View Summary
+            </button>
+
+        </div>
+
+        <div id="chatBox"></div>
+
+        <div id="loading">
+            AI is typing...
+        </div>
+
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="messageInput"
+                placeholder=
+                    "Type your message..."
+            />
+
+            <button id="sendBtn">
+                Send
+            </button>
+
+        </div>
+
+        <div id="summaryBox">
+
+    <button id="closeSummary">
+        ×
+    </button>
+
+    <div id="summaryContent"></div>
+
+</div>
+
+    </div>
+
+    <script src="/static/app.js"></script>
+
+</body>
+</html>
