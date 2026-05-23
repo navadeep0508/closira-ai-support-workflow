@@ -11,6 +11,14 @@ The system demonstrates:
 - conversation summarisation
 
 ---
+# Live Demo
+
+Live Application:
+
+:contentReference[oaicite:0]{index=0}
+
+---
+
 
 # Features
 
@@ -133,7 +141,7 @@ closira-ai-agent/
 ## 1. Clone Repository
 
 ```bash
-git clone <your_repo_url>
+git clone https://github.com/navadeep0508/closira-ai-support-workflow.git
 ```
 
 ---
