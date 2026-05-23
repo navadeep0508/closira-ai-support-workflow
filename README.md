@@ -3,27 +3,33 @@
 An AI-powered customer support workflow built for Bloom Aesthetics Clinic using FastAPI and LLM-based agents.
 
 The system demonstrates:
-- FAQ answering using SOP grounding
-- lead qualification workflows
+- SOP-grounded FAQ answering
+- AI-driven lead qualification
 - escalation handling
 - hallucination prevention
 - session memory
 - conversation summarisation
+- hybrid AI workflow orchestration
 
 ---
+
 # Live Demo
 
 Live Application:
 
-:contentReference[oaicite:0]{index=0}
+https://closira-ai-support-workflow.onrender.com
+
+GitHub Repository:
+
+https://github.com/navadeep0508/closira-ai-support-workflow.git
 
 ---
 
-
 # Features
 
-## FAQ Answering
-The assistant answers customer questions using structured SOP data.
+## SOP-Grounded FAQ Answering
+
+The assistant answers customer questions strictly using structured SOP data.
 
 Examples:
 - pricing
@@ -36,29 +42,48 @@ The workflow prevents unsupported or hallucinated responses.
 
 ---
 
-## Lead Qualification
+## AI-Driven Lead Qualification
 
-The assistant collects lead details such as:
-- customer type
-- business type
-- team size
-- support tools
+The workflow uses hybrid AI orchestration:
+- backend-controlled session memory
+- AI-generated contextual follow-up questions
+
+Instead of rigid scripted questioning, the assistant dynamically:
+- understands user intent
+- asks natural follow-up questions
+- avoids unnecessary qualification
+- adapts conversation flow
+
+Examples:
+- consultation booking
+- service interest
+- business workflow discovery
 - AI support goals
-
-The qualification flow is session-aware and multi-step.
 
 ---
 
-## Escalation Detection
+## Intelligent Escalation Detection
 
-The workflow escalates:
+The workflow combines:
+- rule-based escalation
+- AI-based risk prediction
+
+The assistant escalates:
 - medical questions
 - complaints
-- angry customers
 - refund requests
+- pricing negotiations
 - legal threats
+- unsafe requests
 - unsupported services
 - low-confidence responses
+
+Predicted risk categories:
+- medical
+- complaint
+- pricing
+- legal
+- unsafe
 
 ---
 
@@ -71,17 +96,19 @@ The system generates summaries including:
 - SOP gaps
 - recommended next actions
 
+This simulates real CRM and customer support workflows.
+
 ---
 
 ## Session Memory
 
 The workflow stores:
-- messages
-- qualification progress
+- conversation messages
+- lead details
 - escalation state
-- lead information
+- qualification progress
 
-using session-based memory.
+using session-based in-memory storage.
 
 ---
 
@@ -92,22 +119,22 @@ using session-based memory.
 - HTML
 - CSS
 - JavaScript
-- NVIDIA API / LLM APIs
+- NVIDIA NIM API
 - OpenAI-compatible SDK
+- Llama 3.1 Instruct Models
 
 ---
 
 # Project Structure
 
 ```text
-closira-ai-agent/
+closira-ai-support-workflow/
 
 │
 ├── app/
 │   ├── agents/
 │   │   ├── escalation_agent.py
 │   │   ├── faq_agent.py
-│   │   ├── qualification_agent.py
 │   │   └── summary_agent.py
 │   │
 │   ├── models/
@@ -125,6 +152,7 @@ closira-ai-agent/
 │   │   └── prompts.py
 │   │
 │   ├── main.py
+│   │
 │   └── sop_data.json
 │
 ├── test_transcripts/
@@ -132,208 +160,3 @@ closira-ai-agent/
 ├── README.md
 ├── requirements.txt
 └── .env.example
-```
-
----
-
-# Installation
-
-## 1. Clone Repository
-
-```bash
-git clone https://github.com/navadeep0508/closira-ai-support-workflow.git
-```
-
----
-
-## 2. Create Virtual Environment
-
-```bash
-python -m venv venv
-```
-
-Activate:
-
-### Windows
-
-```bash
-venv\Scripts\activate
-```
-
-### Linux / macOS
-
-```bash
-source venv/bin/activate
-```
-
----
-
-## 3. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-# Environment Variables
-
-Create a `.env` file.
-
-Example:
-
-```env
-NVIDIA_API_KEY=your_api_key
-```
-
----
-
-# Running The Application
-
-Start FastAPI server:
-
-```bash
-uvicorn app.main:app --reload
-```
-
-Open browser:
-
-```text
-http://127.0.0.1:8000
-```
-
----
-
-# API Endpoints
-
-## Home
-
-```http
-GET /
-```
-
----
-
-## Chat Endpoint
-
-```http
-POST /chat
-```
-
-Example request:
-
-```json
-{
-  "session_id": "session-123",
-  "message": "What are your Botox prices?"
-}
-```
-
----
-
-## Conversation Summary
-
-```http
-GET /summary/{session_id}
-```
-
----
-
-## Session Data
-
-```http
-GET /session/{session_id}
-```
-
----
-
-# Example Workflow
-
-## Customer
-
-```text
-What are your Botox prices?
-```
-
-## Assistant
-
-```text
-Our Botox treatments start at £200.
-```
-
----
-
-## Customer
-
-```text
-I want a refund.
-```
-
-## Assistant
-
-Escalates conversation to human support.
-
----
-
-# Hallucination Prevention
-
-The assistant:
-- only answers using SOP data
-- avoids unsupported claims
-- escalates uncertain responses
-- blocks dangerous assumptions
-
-The workflow prioritises safety over unrestricted generation.
-
----
-
-# Frontend Features
-
-- modern chat UI
-- left/right message bubbles
-- loading animation
-- session tracking
-- summary viewer
-- responsive design
-
----
-
-# Limitations
-
-Current limitations:
-- in-memory storage only
-- keyword-based escalation
-- no authentication
-- no database persistence
-- no vector search
-
----
-
-# Future Improvements
-
-Potential upgrades:
-- PostgreSQL / Redis
-- vector database retrieval
-- semantic search
-- admin dashboard
-- streaming responses
-- analytics
-- authentication
-- multilingual support
-
----
-
-# Demo Files
-
-Included:
-- prompt_design.md
-- test_transcripts/
-- frontend UI
-- workflow agents
-- conversation summaries
-
----
-
-# License
-
-This project was created for educational and assessment purposes.
