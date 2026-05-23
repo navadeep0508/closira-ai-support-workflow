@@ -9,12 +9,6 @@ from app.agents.faq_agent import (
     faq_agent
 )
 
-from app.agents.qualification_agent import (
-    get_next_question,
-    get_current_key,
-    detect_customer_type
-)
-
 from app.agents.escalation_agent import (
     detect_escalation
 )
@@ -25,9 +19,6 @@ from app.agents.summary_agent import (
 
 from app.utils.memory import sessions
 
-# ==========================================
-# APP
-# ==========================================
 
 app = FastAPI()
 
@@ -40,10 +31,6 @@ app.mount(
 templates = Jinja2Templates(
     directory="app/templates"
 )
-
-# ==========================================
-# CONSTANTS
-# ==========================================
 
 QUESTION_WORDS = [
 
@@ -69,10 +56,6 @@ GREETINGS = [
     "good afternoon"
 ]
 
-# ==========================================
-# HELPERS
-# ==========================================
-
 
 def create_session():
 
@@ -82,13 +65,9 @@ def create_session():
 
         "lead_data": {},
 
-        "questions_asked": 0,
-
         "qualification_started": False,
 
         "qualification_complete": False,
-
-        "awaiting_qualification_answer": False,
 
         "escalation_reason": ""
     }
@@ -99,7 +78,7 @@ def build_response(
     confidence=1.0,
     escalate=False,
     reason="",
-    qualification_question=None,
+    next_question="",
     session=None
 ):
 
@@ -117,8 +96,8 @@ def build_response(
 
         "reason": reason,
 
-        "qualification_question":
-            qualification_question,
+        "next_question":
+            next_question,
 
         "lead_data":
             session.get(
@@ -175,10 +154,6 @@ def store_message(
         "content": content
     })
 
-# ==========================================
-# HOME
-# ==========================================
-
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
@@ -188,19 +163,11 @@ def home(request: Request):
         name="index.html"
     )
 
-# ==========================================
-# CHAT
-# ==========================================
-
 
 @app.post("/chat")
 def chat(request: ChatRequest):
 
     try:
-
-        # ==========================================
-        # INPUTS
-        # ==========================================
 
         session_id = (
             request.session_id
@@ -212,10 +179,6 @@ def chat(request: ChatRequest):
             .strip()
         )
 
-        # ==========================================
-        # SESSION
-        # ==========================================
-
         if session_id not in sessions:
 
             sessions[session_id] = (
@@ -224,19 +187,11 @@ def chat(request: ChatRequest):
 
         session = sessions[session_id]
 
-        # ==========================================
-        # STORE USER MESSAGE
-        # ==========================================
-
         store_message(
             session,
             "user",
             user_message
         )
-
-        # ==========================================
-        # ESCALATION DETECTION
-        # ==========================================
 
         escalation = detect_escalation(
             user_message
@@ -273,135 +228,15 @@ def chat(request: ChatRequest):
 
                 reason=escalation["reason"],
 
-                qualification_question=None,
+                next_question="",
 
                 session=session
             )
 
-        # ==========================================
-        # QUALIFICATION ANSWERS
-        # ==========================================
-
-        if (
-
-            session.get(
-                "awaiting_qualification_answer",
-                False
-            )
-
-           
-        ):
-
-            key = get_current_key(
-                session
-            )
-
-            if key:
-
-                session["lead_data"][
-                   "customer_type"
-                ] = detect_customer_type(
-                  user_message
-                )
-            elif key:
-
-                session["lead_data"][
-                key
-                ] = user_message
-
-            session[
-                "awaiting_qualification_answer"
-            ] = False
-
-            # ==========================================
-            # NEXT QUESTION
-            # ==========================================
-
-            question = get_next_question(
-                session
-            )
-
-            if question:
-
-                session[
-                    "questions_asked"
-                ] += 1
-
-                session[
-                    "awaiting_qualification_answer"
-                ] = True
-
-                answer = "Thank you."
-
-                store_message(
-                    session,
-                    "assistant",
-                    answer
-                )
-
-                return build_response(
-
-                    answer=answer,
-
-                    confidence=1.0,
-
-                    escalate=False,
-
-                    reason="",
-
-                    qualification_question=
-                        question,
-
-                    session=session
-                )
-
-            else:
-
-                session[
-                    "qualification_complete"
-                ] = True
-
-                session[
-                   "awaiting_qualification_answer"
-                 ] = False
-
-                answer = (
-                    "Thank you for providing "
-                    "the information."
-                )
-
-                store_message(
-                    session,
-                    "assistant",
-                    answer
-                )
-
-                return build_response(
-
-                    answer=answer,
-
-                    confidence=1.0,
-
-                    escalate=False,
-
-                    reason="",
-
-                    qualification_question=None,
-
-                    session=session
-                )
-
-        # ==========================================
-        # FAQ AGENT
-        # ==========================================
-
         response = faq_agent(
-            user_message
+            user_message,
+            session
         )
-
-        # ==========================================
-        # STORE ASSISTANT MESSAGE
-        # ==========================================
 
         store_message(
             session,
@@ -412,61 +247,28 @@ def chat(request: ChatRequest):
             )
         )
 
-        # ==========================================
-        # START QUALIFICATION FLOW
-        # ==========================================
-
-        if (
-
-            not session[
-                "qualification_started"
-            ]
-
-            and not response.get(
-                "escalate",
-                False
-            )
-
-            and not is_greeting(
-                user_message
-            )
+        if response.get(
+            "detected_customer_type"
         ):
 
-            question = (
-                get_next_question(
-                    session
-                )
+            session["lead_data"][
+                "customer_type"
+            ] = response.get(
+                "detected_customer_type"
             )
 
-            if question:
+        if response.get(
+            "qualification_complete",
+            False
+        ):
 
-                response[
-                    "qualification_question"
-                ] = question
-
-                session[
-                    "qualification_started"
-                ] = True
-
-                session[
-                    "awaiting_qualification_answer"
-                ] = True
-
-                session[
-                    "questions_asked"
-                ] += 1
-
-        # ==========================================
-        # DEBUG
-        # ==========================================
+            session[
+                "qualification_complete"
+            ] = True
 
         print("\nSESSION STATE:\n")
 
         print(session)
-
-        # ==========================================
-        # FINAL RESPONSE
-        # ==========================================
 
         return build_response(
 
@@ -490,17 +292,13 @@ def chat(request: ChatRequest):
                 ""
             ),
 
-            qualification_question=response.get(
-                "qualification_question",
-                None
+            next_question=response.get(
+                "next_question",
+                ""
             ),
 
             session=session
         )
-
-    # ==========================================
-    # ERROR HANDLING
-    # ==========================================
 
     except Exception as e:
 
@@ -521,14 +319,10 @@ def chat(request: ChatRequest):
 
             reason=str(e),
 
-            qualification_question=None,
+            next_question="",
 
             session=create_session()
         )
-
-# ==========================================
-# SUMMARY
-# ==========================================
 
 
 @app.get("/summary/{session_id}")
@@ -576,6 +370,8 @@ def get_summary(
 
             "error": str(e)
         }
+
+
 @app.post("/reset/{session_id}")
 def reset_session(
     session_id: str

@@ -42,11 +42,26 @@ const summaryBox =
         "summaryBox"
     );
 
+const closeSummary =
+    document.getElementById(
+        "closeSummary"
+    );
+
+const summaryContent =
+    document.getElementById(
+        "summaryContent"
+    );
+
 
 function addMessage(
     text,
     sender
 ) {
+
+    if (!text) {
+
+        return;
+    }
 
     const div =
         document.createElement(
@@ -129,15 +144,12 @@ async function sendMessage() {
         );
 
         if (
-            data.qualification_question
+            data.next_question
         ) {
 
             addMessage(
 
-                "Question:\n" +
-
-                data
-                .qualification_question,
+                data.next_question,
 
                 "bot"
             );
@@ -290,15 +302,7 @@ ${JSON.stringify(
         }
     }
 );
-const closeSummary =
-    document.getElementById(
-        "closeSummary"
-    );
 
-const summaryContent =
-    document.getElementById(
-        "summaryContent"
-    );
 
 closeSummary.addEventListener(
 

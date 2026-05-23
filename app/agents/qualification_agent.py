@@ -1,73 +1,50 @@
-QUALIFICATION_FLOW = {
-
-    "individual": [
-
-        {
-            "key": "service_interest",
-
-            "question":
-                "Which treatment are you interested in?"
-        },
-
-        {
-            "key": "booking_interest",
-
-            "question":
-                "Would you like help booking a consultation?"
-        }
-    ],
-
-    "business": [
-
-        {
-            "key": "business_type",
-
-            "question":
-                "What type of business do you run?"
-        },
-
-        {
-            "key": "team_size",
-
-            "question":
-                "How many team members do you have?"
-        },
-
-        {
-            "key": "current_tools",
-
-            "question":
-                "What tools do you currently use for customer support?"
-        },
-
-        {
-            "key": "main_goal",
-
-            "question":
-                "What is your main goal with AI customer support?"
-        }
-    ]
-}
-
-
 def detect_customer_type(
-    answer: str
+    text: str
 ):
 
-    text = answer.lower()
+    text = text.lower()
+
+    business_keywords = [
+
+        "business",
+
+        "company",
+
+        "startup",
+
+        "agency",
+
+        "customer support",
+
+        "ai support",
+
+        "automation"
+    ]
 
     individual_keywords = [
 
-        "individual",
+        "botox",
 
-        "alone",
+        "filler",
 
-        "personal",
+        "consultation",
 
-        "myself",
+        "appointment",
 
-        "customer"
+        "laser",
+
+        "hydrafacial",
+
+        "chemical peel"
     ]
+
+    for keyword in (
+        business_keywords
+    ):
+
+        if keyword in text:
+
+            return "business"
 
     for keyword in (
         individual_keywords
@@ -77,71 +54,50 @@ def detect_customer_type(
 
             return "individual"
 
-    return "business"
+    return ""   
 
 
-def get_next_question(
+
+def build_dynamic_context(
     session
 ):
 
-    customer_type = session[
-        "lead_data"
-    ].get(
-        "customer_type"
+    lead_data = session.get(
+        "lead_data",
+        {}
     )
 
-    if not customer_type:
-
-        return (
-            "Are you an individual "
-            "customer or a business?"
+    customer_type = (
+        lead_data.get(
+            "customer_type",
+            ""
         )
-
-    flow = QUALIFICATION_FLOW[
-        customer_type
-    ]
-
-    asked = session.get(
-        "questions_asked",
-        0
     )
 
-    if asked < len(flow):
+    if customer_type == "business":
 
-        return flow[
-            asked
-        ]["question"]
+        return """
 
-    return None
+Business Lead Qualification Goals:
+- understand business type
+- understand support workflow
+- understand team size
+- understand customer support tools
+- understand AI automation goals
+
+Ask questions naturally.
+Avoid sounding robotic.
+Stop once enough information is collected.
+"""
+
+    return """
+
+Customer Service Goals:
+- help customer choose services
+- help with consultation booking
+- answer treatment questions naturally
+
+Avoid unnecessary business qualification.
+"""
 
 
-def get_current_key(
-    session
-):
-
-    customer_type = session[
-        "lead_data"
-    ].get(
-        "customer_type"
-    )
-
-    if not customer_type:
-
-        return "customer_type"
-
-    flow = QUALIFICATION_FLOW[
-        customer_type
-    ]
-
-    asked = session.get(
-        "questions_asked",
-        0
-    )
-
-    if 0 < asked <= len(flow):
-
-        return flow[
-            asked - 1
-        ]["key"]
-
-    return None
