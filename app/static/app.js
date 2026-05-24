@@ -210,58 +210,117 @@ summaryBtn.addEventListener(
 
             summaryBox.style.display =
                 "block";
-
             summaryContent.innerHTML = `
 
-                <h2>
-                    Conversation Summary
-                </h2>
+    <h2>
+        Conversation Summary
+    </h2>
 
-                <br>
+    <br>
 
-                <div class="summary-item">
+    <div class="summary-item">
 
-                    <span class="summary-label">
-                        Customer Intent:
-                    </span>
+        <span class="summary-label">
+            Customer Intent:
+        </span>
 
-                    <br>
+        <br>
 
-                    ${data.customer_intent}
+        ${data.customer_intent}
 
-                </div>
+    </div>
 
-                <div class="summary-item">
+    <div class="summary-item">
 
-                    <span class="summary-label">
-                        Escalation Reason:
-                    </span>
+        <span class="summary-label">
+            Services Discussed:
+        </span>
 
-                    <br>
+        <pre>
 
-                    ${data.escalation_reason || "None"}
+${JSON.stringify(
+    data.services_discussed,
+    null,
+    2
+)}
 
-                </div>
+        </pre>
 
-                <div class="summary-item">
+    </div>
 
-                    <span class="summary-label">
-                        Recommended Action:
-                    </span>
+    <div class="summary-item">
 
-                    <br>
+        <span class="summary-label">
+            Detected Risks:
+        </span>
 
-                    ${data.recommended_next_action}
+        <pre>
 
-                </div>
+${JSON.stringify(
+    data.detected_risks,
+    null,
+    2
+)}
 
-                <div class="summary-item">
+        </pre>
 
-                    <span class="summary-label">
-                        Lead Details:
-                    </span>
+    </div>
 
-                    <pre>
+    <div class="summary-item">
+
+        <span class="summary-label">
+            Escalation Reason:
+        </span>
+
+        <br>
+
+        ${data.escalation_reason || "None"}
+
+    </div>
+
+    <div class="summary-item">
+
+        <span class="summary-label">
+            Booking Detected:
+        </span>
+
+        <br>
+
+        ${data.booking_detected}
+
+    </div>
+
+    <div class="summary-item">
+
+        <span class="summary-label">
+            Last User Message:
+        </span>
+
+        <br>
+
+        ${data.last_user_message}
+
+    </div>
+
+    <div class="summary-item">
+
+        <span class="summary-label">
+            Recommended Action:
+        </span>
+
+        <br>
+
+        ${data.recommended_next_action}
+
+    </div>
+
+    <div class="summary-item">
+
+        <span class="summary-label">
+            Lead Details:
+        </span>
+
+        <pre>
 
 ${JSON.stringify(
     data.lead_details,
@@ -269,17 +328,17 @@ ${JSON.stringify(
     2
 )}
 
-                    </pre>
+        </pre>
 
-                </div>
+    </div>
 
-                <div class="summary-item">
+    <div class="summary-item">
 
-                    <span class="summary-label">
-                        SOP Gaps:
-                    </span>
+        <span class="summary-label">
+            SOP Gaps:
+        </span>
 
-                    <pre>
+        <pre>
 
 ${JSON.stringify(
     data.sop_gaps_identified,
@@ -287,10 +346,30 @@ ${JSON.stringify(
     2
 )}
 
-                    </pre>
+        </pre>
 
-                </div>
-            `;
+    </div>
+
+    <div class="summary-item">
+
+        <span class="summary-label">
+            Conversation Statistics:
+        </span>
+
+        <pre>
+
+${JSON.stringify(
+    data.conversation_statistics,
+    null,
+    2
+)}
+
+        </pre>
+
+    </div>
+`;
+           
+
 
         } catch (error) {
 

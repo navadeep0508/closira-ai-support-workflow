@@ -1,3 +1,6 @@
+import re
+
+
 ESCALATION_KEYWORDS = {
 
     "complaint": [
@@ -89,6 +92,65 @@ ESCALATION_KEYWORDS = {
 }
 
 
+ESCALATION_MESSAGES = {
+
+    "medical": (
+        "I’m unable to provide medical advice regarding that "
+        "request. I am escalating this conversation to a human "
+        "support specialist."
+    ),
+
+    "pricing": (
+        "I’m unable to negotiate pricing directly. I am "
+        "escalating this conversation to a human support "
+        "representative."
+    ),
+
+    "legal": (
+        "I’m sorry, but I’m unable to assist with legal "
+        "concerns. I am escalating this conversation to a "
+        "human support representative."
+    ),
+
+    "complaint": (
+        "I’m sorry you’ve had this experience. I am "
+        "escalating your case to a human support "
+        "representative who can help."
+    ),
+
+    "angry": (
+        "I understand this is frustrating. I am escalating "
+        "this conversation to a human support "
+        "representative."
+    ),
+
+    "out_of_scope": (
+        "I’m sorry, but I cannot assist with that request. "
+        "I am escalating this conversation to a human "
+        "support agent."
+    ),
+}
+
+
+DEFAULT_ESCALATION_MESSAGE = (
+    "I’m sorry, but I’m not able to assist with that. "
+    "I am escalating this conversation to a human support "
+    "agent."
+)
+
+
+_COMPILED_PATTERNS = {
+    category: [
+        re.compile(
+            rf"\b{re.escape(keyword)}\b"
+        )
+        for keyword in keywords
+    ]
+    for category, keywords
+    in ESCALATION_KEYWORDS.items()
+}
+
+
 def detect_escalation(
     message: str
 ):
@@ -99,17 +161,19 @@ def detect_escalation(
         .strip()
     )
 
-    for category, keywords in (
-        ESCALATION_KEYWORDS.items()
+    for category, patterns in (
+        _COMPILED_PATTERNS.items()
     ):
 
-        for keyword in keywords:
+        for pattern in patterns:
 
-            if keyword in text:
+            if pattern.search(text):
 
                 return {
 
                     "escalate": True,
+
+                    "category": category,
 
                     "reason":
                         f"{category} detected"
@@ -119,5 +183,17 @@ def detect_escalation(
 
         "escalate": False,
 
+        "category": "",
+
         "reason": ""
     }
+
+
+def escalation_message(
+    category: str
+) -> str:
+
+    return ESCALATION_MESSAGES.get(
+        category,
+        DEFAULT_ESCALATION_MESSAGE,
+    )

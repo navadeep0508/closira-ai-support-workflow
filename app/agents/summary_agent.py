@@ -19,6 +19,10 @@ def generate_summary(
 
     discussed_services = []
 
+    detected_risks = []
+
+    booking_detected = False
+
     # ==========================================
     # CUSTOMER INTENT DETECTION
     # ==========================================
@@ -62,6 +66,7 @@ def generate_summary(
     for message in messages:
 
         if message["role"] != "user":
+
             continue
 
         text = (
@@ -78,6 +83,17 @@ def generate_summary(
                 discussed_services.append(
                     intent
                 )
+
+        if (
+
+            "book" in text
+
+            or "appointment" in text
+
+            or "consultation" in text
+        ):
+
+            booking_detected = True
 
     discussed_services = list(
         set(discussed_services)
@@ -96,6 +112,71 @@ def generate_summary(
         customer_intent = (
             "General customer enquiry"
         )
+
+    # ==========================================
+    # RISK DETECTION
+    # ==========================================
+
+    risk_mapping = {
+
+        "pregnancy":
+            "medical",
+
+        "safe":
+            "medical",
+
+        "side effects":
+            "medical",
+
+        "refund":
+            "complaint",
+
+        "complaint":
+            "complaint",
+
+        "lower price":
+            "pricing",
+
+        "discount":
+            "pricing",
+
+        "sue":
+            "legal",
+
+        "lawyer":
+            "legal",
+
+        "heart surgery":
+            "unsafe",
+
+        "brain surgery":
+            "unsafe"
+    }
+
+    for message in messages:
+
+        if message["role"] != "user":
+
+            continue
+
+        text = (
+            message["content"]
+            .lower()
+        )
+
+        for keyword, risk in (
+            risk_mapping.items()
+        ):
+
+            if keyword in text:
+
+                detected_risks.append(
+                    risk
+                )
+
+    detected_risks = list(
+        set(detected_risks)
+    )
 
     # ==========================================
     # SOP GAP DETECTION
@@ -127,6 +208,7 @@ def generate_summary(
     for message in messages:
 
         if message["role"] != "user":
+
             continue
 
         text = (
@@ -141,6 +223,7 @@ def generate_summary(
             if keyword in text:
 
                 sop_gaps.append(
+
                     f"Missing SOP "
                     f"information about "
                     f"'{keyword}'"
@@ -157,8 +240,17 @@ def generate_summary(
     if escalation_reason:
 
         next_action = (
+
             "Human support "
             "follow-up required"
+        )
+
+    elif booking_detected:
+
+        next_action = (
+
+            "Proceed with "
+            "consultation booking"
         )
 
     elif (
@@ -169,13 +261,15 @@ def generate_summary(
     ):
 
         next_action = (
-            "Continue lead "
-            "qualification"
+
+            "Continue customer "
+            "engagement"
         )
 
     else:
 
         next_action = (
+
             "Continue automated "
             "support"
         )
@@ -189,14 +283,36 @@ def generate_summary(
     )
 
     user_messages = len([
+
         m for m in messages
+
         if m["role"] == "user"
     ])
 
     assistant_messages = len([
+
         m for m in messages
+
         if m["role"] == "assistant"
     ])
+
+    # ==========================================
+    # LAST USER MESSAGE
+    # ==========================================
+
+    last_user_message = ""
+
+    for message in reversed(
+        messages
+    ):
+
+        if message["role"] == "user":
+
+            last_user_message = (
+                message["content"]
+            )
+
+            break
 
     # ==========================================
     # FINAL SUMMARY
@@ -222,11 +338,20 @@ def generate_summary(
         "escalation_reason":
             escalation_reason,
 
+        "detected_risks":
+            detected_risks,
+
         "sop_gaps_identified":
             sop_gaps,
 
         "recommended_next_action":
             next_action,
+
+        "booking_detected":
+            booking_detected,
+
+        "last_user_message":
+            last_user_message,
 
         "conversation_statistics": {
 

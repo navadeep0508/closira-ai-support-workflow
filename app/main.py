@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -10,14 +12,22 @@ from app.agents.faq_agent import (
 )
 
 from app.agents.escalation_agent import (
-    detect_escalation
+    detect_escalation,
+    escalation_message,
 )
 
 from app.agents.summary_agent import (
     generate_summary
 )
 
-from app.utils.memory import sessions
+from app.utils.memory import (
+    sessions,
+    prune_expired_sessions,
+    touch_session,
+)
+
+
+logger = logging.getLogger(__name__)
 
 
 app = FastAPI()
@@ -179,6 +189,8 @@ def chat(request: ChatRequest):
             .strip()
         )
 
+        prune_expired_sessions()
+
         if session_id not in sessions:
 
             sessions[session_id] = (
@@ -193,6 +205,8 @@ def chat(request: ChatRequest):
             user_message
         )
 
+        touch_session(session)
+
         escalation = detect_escalation(
             user_message
         )
@@ -203,13 +217,11 @@ def chat(request: ChatRequest):
                 "escalation_reason"
             ] = escalation["reason"]
 
-            answer = (
-
-                "I’m sorry, but I’m not "
-                "able to assist with that. "
-                "I am escalating this "
-                "conversation to a human "
-                "support agent."
+            answer = escalation_message(
+                escalation.get(
+                    "category",
+                    ""
+                )
             )
 
             store_message(
@@ -217,6 +229,8 @@ def chat(request: ChatRequest):
                 "assistant",
                 answer
             )
+
+            touch_session(session)
 
             return build_response(
 
@@ -266,9 +280,7 @@ def chat(request: ChatRequest):
                 "qualification_complete"
             ] = True
 
-        print("\nSESSION STATE:\n")
-
-        print(session)
+        touch_session(session)
 
         return build_response(
 
@@ -302,10 +314,7 @@ def chat(request: ChatRequest):
 
     except Exception as e:
 
-        print(
-            "\nMAIN ERROR:\n",
-            str(e)
-        )
+        logger.exception("chat handler failed")
 
         return build_response(
 
@@ -361,10 +370,7 @@ def get_summary(
 
     except Exception as e:
 
-        print(
-            "\nSUMMARY ERROR:\n",
-            str(e)
-        )
+        logger.exception("summary handler failed")
 
         return {
 
